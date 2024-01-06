@@ -2,6 +2,9 @@ import { Link, Outlet } from '@tanstack/react-router'
 import TanStackRouterDevtools from '../components/tanstackRouterDevtool'
 import { router } from '../route'
 import { Suspense } from 'react'
+import { QueryErrorResetBoundary } from '@tanstack/react-query'
+import React from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 
 export const Index = () => {
   return (
@@ -33,7 +36,27 @@ export const Index = () => {
           </Link>
         </aside>
         <section className='overflow-auto w-full'>
-          <Outlet />
+          <QueryErrorResetBoundary>
+            {({ reset }) => (
+              <ErrorBoundary
+                fallbackRender={({ error, resetErrorBoundary }) => (
+                  <div>
+                    There was an error!{' '}
+                    <button
+                      className='btn btn-info'
+                      onClick={() => resetErrorBoundary()}>
+                      Try again
+                    </button>
+                    <pre className='whitespace-normal'>{error.message}</pre>
+                  </div>
+                )}
+                onReset={reset}>
+                <React.Suspense>
+                  <Outlet />
+                </React.Suspense>
+              </ErrorBoundary>
+            )}
+          </QueryErrorResetBoundary>
         </section>
         <Suspense>
           <TanStackRouterDevtools router={router} />

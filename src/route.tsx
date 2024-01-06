@@ -4,6 +4,9 @@ import { Blogs } from './pages/blogs'
 import { Posts } from './pages/posts'
 import { fetchPost, fetchPosts } from './queries'
 import { PostDetails } from './pages/posts/postId'
+import { QueryClient } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
 
 const rootRoute = new RootRoute()
 
@@ -33,14 +36,14 @@ export const postIndexedRoute = new Route({
   getParentRoute: () => postRoute,
   path: '/',
   component: Posts,
-  loader: fetchPosts,
+  loader: () => queryClient.ensureQueryData(fetchPosts()),
 })
 
 export const postDetailRoute = new Route({
   getParentRoute: () => postRoute,
   path: '$postId',
   component: PostDetails,
-  loader: ({ params }) => fetchPost(params.postId),
+  loader: ({ params }) => queryClient.ensureQueryData(fetchPost(params.postId)),
 })
 
 const userRoute = new Route({
@@ -69,6 +72,8 @@ export const router = new Router({
   routeTree,
   defaultPreloadStaleTime: 0,
   caseSensitive: true,
+  defaultPreload: 'intent',
+  defaultPreloadDelay: 100,
 })
 
 declare module '@tanstack/react-router' {

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-interface IPost {
+export interface IPost {
   id: string
   title: string
   body: string
