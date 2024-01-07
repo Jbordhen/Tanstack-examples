@@ -10,7 +10,6 @@ export const PostBody = ({ post }: IPostBody) => {
     <article className='flex flex-col gap-2'>
       <h3>
         <Link
-          preload='intent'
           to='/posts/$postId'
           params={{ postId: post.id }}
           className='mr-1 link-primary text-lg font-semibold'>
@@ -18,7 +17,6 @@ export const PostBody = ({ post }: IPostBody) => {
         </Link>
         by{' '}
         <Link
-          preload='intent'
           to={'/users/$userId'}
           params={{ userId: post.userId }}
           className='link-primary font-semibold'>

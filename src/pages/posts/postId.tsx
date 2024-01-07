@@ -9,6 +9,7 @@ const Index = () => {
     select: (params) => params.postId,
   })
   const { data: post } = useSuspenseQuery(fetchPost(postId))
+
   return (
     <div className='flex flex-col gap-4 px-4 py-4'>
       <h2 className='text-3xl font-bold'>{post.data.title}</h2>

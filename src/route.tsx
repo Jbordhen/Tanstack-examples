@@ -1,4 +1,4 @@
-import { RootRoute, Route, Router } from '@tanstack/react-router'
+import { Route, Router, rootRouteWithContext } from '@tanstack/react-router'
 import { Index } from './pages'
 import { Blogs } from './pages/blogs'
 import { Posts } from './pages/posts'
@@ -6,9 +6,23 @@ import { fetchPost, fetchPosts } from './queries'
 import { PostDetails } from './pages/posts/postId'
 import { QueryClient } from '@tanstack/react-query'
 
-const queryClient = new QueryClient()
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      staleTime: 10_000,
+      gcTime: 10_000,
+      retryOnMount: false,
+    },
+  },
+})
 
-const rootRoute = new RootRoute()
+interface IRootContext {
+  queryClient: QueryClient
+}
+
+const rootRoute = rootRouteWithContext<IRootContext>()()
 
 const indexRoute = new Route({
   getParentRoute: () => rootRoute,
@@ -36,14 +50,15 @@ export const postIndexedRoute = new Route({
   getParentRoute: () => postRoute,
   path: '/',
   component: Posts,
-  loader: () => queryClient.ensureQueryData(fetchPosts()),
+  loader: ({ context }) => context.queryClient.ensureQueryData(fetchPosts()),
 })
 
 export const postDetailRoute = new Route({
   getParentRoute: () => postRoute,
   path: '$postId',
   component: PostDetails,
-  loader: ({ params }) => queryClient.ensureQueryData(fetchPost(params.postId)),
+  loader: ({ params, context }) =>
+    context.queryClient.ensureQueryData(fetchPost(params.postId)),
 })
 
 const userRoute = new Route({
@@ -73,7 +88,9 @@ export const router = new Router({
   defaultPreloadStaleTime: 0,
   caseSensitive: true,
   defaultPreload: 'intent',
-  defaultPreloadDelay: 100,
+  context: {
+    queryClient,
+  },
 })
 
 declare module '@tanstack/react-router' {
